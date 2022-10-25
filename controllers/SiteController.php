@@ -72,14 +72,14 @@ class SiteController extends Controller
         $formData = Yii::$app->request->post();
         if ($post->load($formData)) {
             if ($post->save()) {
-                Yii::$app->getSession()->setFlash('message', 'post published');
+                Yii::$app->getSession()->setFlash('message', 'Post Published');
                 return $this->redirect(['index']);
             }
             Yii::$app->getSession()->setFlash('message', 'failed to post');
         }
         return $this->render('create', ['post' => $post]);
     }
-    
+
     public function actionView($id)
     {
         $post = Posts::findOne($id);
@@ -88,13 +88,30 @@ class SiteController extends Controller
 
     public function actionUpdate($id)
     {
-        return $this->render('update');
+        $post =  Posts::findOne($id);
+        if ($post->load(Yii::$app->request->post()) && $post->save()) {
+            Yii::$app->getSession()->setFlash('message', 'Post Updated');
+            return $this->redirect(['index', 'id' => $post->id]);
+        }
+        return $this->render('update', ['post' => $post]);
+    }
+    public function actionDelete($id)
+    {
+        $post = Posts::findOne($id)->delete();
+        if($post) {
+            Yii::$app->getSession()->setFlash('message', 'Post Deleted');
+            
+        }else{
+            Yii::$app->getSession()->setFlash('message', 'Failed to Delete');
+        }
+        return $this->redirect(['index']);
     }
     /**
      * Login action.
      *
      * @return Response|string
      */
+
     public function actionLogin()
     {
         if (!Yii::$app->user->isGuest) {
